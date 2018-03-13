@@ -1,5 +1,7 @@
 var builder = require('botbuilder')
 var entity = require('./../entity')
+var snow = require('./../integrations/snow')
+var cards = require('./../cards/incidentsCard')
 
 module.exports = (bot) => {
     
@@ -11,8 +13,6 @@ module.exports = (bot) => {
         },
 
         (session,results,next) => {
-            console.log(JSON.stringify(results))
-
             if (results.tickets){
                 session.conversationData.tickets = results.tickets
                 session.beginDialog('/getTicketInfo',{tickets:results.tickets})
@@ -22,7 +22,6 @@ module.exports = (bot) => {
         },
 
         (session, results, next) => {
-            console.log(JSON.stringify(results))
             response = results.response.toString().toLowerCase()
             if (response == 'yes'){
                 session.beginDialog('/askForEmployeeId',{person:"other"})
@@ -97,23 +96,47 @@ module.exports = (bot) => {
     ])
 
     bot.dialog('/getTicketInfo',[
-        (session,args) => {
+        (session,args,next) => {
             if (!args || !args.tickets){
                 session.say("Something failed, I misplaced the ticket numbers")
                 session.endDialogWithResult({escalte:true})
             }else{
-                var tickets = args.tickets
-                var url = "https://demo.service-now.com/api/v2/incidents/"
-                tickets = tickets.map((ticket)=>{
-                    return url+ticket
-                })
-
-                tickets = tickets.reduce((acc,val)=>{
-                    acc = acc + "\n" + val
-                    return acc
-                })
-                session.say(tickets)
+                snow.getSnowTicketByNumber(args.tickets)
+                    .then((data)=>{
+                        
+                        console.log(data)
+                        if (data && data.result){
+                            next({tickets:data.result})
+                        }else{
+                            next({tickets:[]})
+                        }
+                    })
+                    .catch((error)=>{
+                        console.log(error)
+                        next({tickets:[]})
+                    })
+            }
+        },
+        (session,args) =>{
+            if (!args || !args.tickets || args.tickets.length ==0){
+                session.send("Couldn't find any ticket")
                 session.endConversation()
+            }else{
+                tickets = args.tickets
+                console.log(tickets)
+                tickets = tickets.map((inc)=>{
+                    return cards.incidentCard(session,inc)
+                })
+                if (tickets.len == 1){
+                    session.send(ticket[0])
+                    session.endConversation()
+                }else{
+                    var reply =  new builder.Message(session)
+                    .attachmentLayout(builder.AttachmentLayout.carousel)
+                    .attachments(cards);
+                    session.send(reply)
+                    session.endConversation()
+                }
             }
         }
     ])

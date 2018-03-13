@@ -1,11 +1,12 @@
-var fetch = require('fetch');
+var fetch = require('node-fetch')
+let base64 = require('base-64');
 
-module.exports ={
-    getSnowTicketByNumber:(numbers)=>{
-        var url =process.env.url+'/api/now/v1/table/incident?sysparm_query='
+
+module.exports = {
+    getSnowTicketByNumber:(numbers,onSuccess, onError)=>{
+        var url =process.env.snow_url+'/api/now/table/incident?sysparm_fields=number%2Cstate%2Cassigned_to%2Cshort_description%2Cimpact%2Csys_updated_on%2Cdescription%2Csys_id%2Cincident_state%2Curgency%2Csys_updated_by%2Copened_by%2Csys_created_on&sysparm_query='
         var numbers= numbers || null
         var tickets = []
-
         if(!numbers){
             return tickets
         }
@@ -18,13 +19,15 @@ module.exports ={
                 query_string = query_string + "number=" + numbers[index] + '^OR'
             }
         }
+        
+        var uri = url +query_string
 
-        var URI = url +query_string
-
-        fetch(URI,{
+        return fetch(uri,{
             method: 'GET',
             headers: {
-                'Authorization': 'Basic' + btoa(process.enc.snow_user +':'+process.env.snow_pass)
+                'Authorization': 'Basic ' + base64.encode(process.env.snow_user +':'+process.env.snow_pass),
+                'Accept':'application/json',
+                'Content-Type':'application/json'
                 }
             })
             .then(function(response) {
@@ -34,11 +37,12 @@ module.exports ={
             .catch((error)=>{
                 return []
             })
+
     },
 
     getSnowTicketsById:(id)=>{
         var id = id
-        var 
+     
     }
 
 
