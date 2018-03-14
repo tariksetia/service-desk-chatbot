@@ -2,17 +2,16 @@ var builder = require('botbuilder')
 
 module.exports = {
     incidentCard: (session,inc)=>{
-        return new builder.Message(session).addAttachment(incidentCardJson(inc))
+        var card = incCard(inc)
+        return new builder.Message(session).addAttachment(card)
     },
-    cardList: (cards) =>{
-        return new builder.Message(session)
-        .attachmentLayout(builder.AttachmentLayout.carousel)
-        .attachments(cards);
+    incidentCardJson: (inc) =>{
+        return(incCard(inc))
     }
 }
 
 
-var incidentCardJson = function (incident) {
+var incCard = function (incident) {
     return {
             "contentType" : "application/vnd.microsoft.card.adaptive",
             "content" : {
@@ -69,11 +68,7 @@ var incidentCardJson = function (incident) {
                                         "type": "TextBlock",
                                         "text": "Priority",
                                     },
-                                    {
-                                        "type": "TextBlock",
-                                        "text": "Assigned To",
-                                        "spacing": "small"
-                                    },
+                                    
                                     {
                                         "type": "TextBlock",
                                         "text": "Created",
@@ -95,11 +90,7 @@ var incidentCardJson = function (incident) {
                                         "text": priority[incident.priority]
                                     
                                     },
-                                    {
-                                        "type": "TextBlock",
-                                        "text": getAssignee(incident.assigned_to),
-                                        "spacing": "small"
-                                    },
+                                
                                     {
                                         "type": "TextBlock",
                                         "text": incident.sys_created_on,
@@ -137,7 +128,7 @@ var getStatus = (state) => {
 
 var getAssignee = (assignee) => {
     
-    return assignee == '' ? 'Unassigned':assignee; 
+    return ""
 
 }
 var getUrl = (sys_id) => {

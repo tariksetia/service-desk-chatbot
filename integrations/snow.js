@@ -4,7 +4,7 @@ let base64 = require('base-64');
 
 module.exports = {
     getSnowTicketByNumber:(numbers,onSuccess, onError)=>{
-        var url =process.env.snow_url+'/api/now/table/incident?sysparm_fields=number%2Cstate%2Cassigned_to%2Cshort_description%2Cimpact%2Csys_updated_on%2Cdescription%2Csys_id%2Cincident_state%2Curgency%2Csys_updated_by%2Copened_by%2Csys_created_on&sysparm_query='
+        var url =process.env.snow_url+'/api/now/table/incident?sysparm_fields=number%2Cstate%2Cassigned_to%2Cpriority%2Cshort_description%2Cimpact%2Csys_updated_on%2Cdescription%2Csys_id%2Cincident_state%2Curgency%2Csys_updated_by%2Copened_by%2Csys_created_on&sysparm_query='
         var numbers= numbers || null
         var tickets = []
         if(!numbers){

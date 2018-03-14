@@ -1,7 +1,7 @@
 var builder = require('botbuilder')
 var entity = require('./../entity')
 var snow = require('./../integrations/snow')
-var cards = require('./../cards/incidentsCard')
+var cards = require('./../cards/incident')
 
 module.exports = (bot) => {
     
@@ -122,20 +122,20 @@ module.exports = (bot) => {
                 session.send("Couldn't find any ticket")
                 session.endConversation()
             }else{
-                tickets = args.tickets
-                console.log(tickets)
+                var tickets = args.tickets
+               
                 tickets = tickets.map((inc)=>{
                     return cards.incidentCard(session,inc)
                 })
-                if (tickets.len == 1){
-                    session.send(ticket[0])
+                if (tickets.length == 1){
+                    session.send(tickets[0])
                     session.endConversation()
                 }else{
                     var reply =  new builder.Message(session)
                     .attachmentLayout(builder.AttachmentLayout.carousel)
-                    .attachments(cards);
+                    .attachments(tickets);
                     session.send(reply)
-                    session.endConversation()
+                    
                 }
             }
         }
